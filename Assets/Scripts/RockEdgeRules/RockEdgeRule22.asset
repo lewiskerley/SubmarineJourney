@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26c435a2ee36264cb25390974630468, type: 3}
+  m_Name: RockEdgeRule22
+  m_EditorClassIdentifier: 
+  up: 1
+  down: 2147483647
+  left: 1
+  right: 2147483647
+  prefabs:
+  - {fileID: 1337661944408087238, guid: edae2a2df51eefb478a02e49551bf53c, type: 3}
+  - {fileID: 6630854138485711835, guid: 17eec65a112bcf345a49977bfede7245, type: 3}
+  - {fileID: 3830968313985510360, guid: 766ab980748a2c24f809bb707df32ea8, type: 3}
