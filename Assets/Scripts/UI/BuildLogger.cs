@@ -1,21 +1,32 @@
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BuildLogger : MonoBehaviour
 {
+    PlayerControls _playerControls;
     string myLog = "*begin log";
     string filename = "";
     bool doShow = false;
-    int kChars = 700;
-    void OnEnable() { Application.logMessageReceived += Log; }
-    void OnDisable() { Application.logMessageReceived -= Log; }
-    void Update() {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Tab)) { doShow = !doShow; }
+    int kLines = 12;
+    void OnEnable() { Application.logMessageReceived += Log; _playerControls.Enable(); }
+    void OnDisable() { Application.logMessageReceived -= Log; _playerControls.Disable(); }
+    private void Awake()
+    {
+        _playerControls = new PlayerControls();
+        _playerControls.Map.Console.performed += ToggleLog;
     }
+    private void ToggleLog(InputAction.CallbackContext context) { doShow = !doShow; }
     public void Log(string logString, string stackTrace, LogType type)
     {
         // for onscreen...
         myLog = myLog + "\n" + logString;
-        if (myLog.Length > kChars) { myLog = myLog.Substring(myLog.Length - kChars); }
+
+        while (myLog.Split('\n').Length > kLines) {
+            string[] newLog = new string[myLog.Length - 1];
+            myLog.Split('\n').CopyTo(newLog, 1);
+            myLog = String.Join("\n", newLog);
+        }
 
         /*
         // for the file ...

@@ -119,18 +119,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2464153545671310594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4699076130490771242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 467b28966bc9e514c82535b0ab49a187, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5617977793141266936
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,9 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5617977793141266943}
   - component: {fileID: 1871598382}
-  - component: {fileID: 1871598381}
   - component: {fileID: 1871598380}
-  - component: {fileID: -6888434418749207128}
+  - component: {fileID: 1782161005188727655}
   m_Layer: 7
   m_Name: PlayerSinglePlayer
   m_TagString: Player
@@ -183,40 +170,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
---- !u!114 &1871598381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5617977793141266936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5801594210b0ae4fbc43889aa5d9915, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 0
-  _addedNetworkObject: {fileID: 0}
-  _networkObjectCache: {fileID: 0}
-  ANIM_IDLE:
-    animLengthSeconds: 0
-    animPlayTime: 0
-    queuePlay: 0
-  ANIM_DIRECTION_SWITCH:
-    animLengthSeconds: 0
-    animPlayTime: 0
-    queuePlay: 0
-  ANIM_SWIM:
-    animLengthSeconds: 0
-    animPlayTime: 0
-    queuePlay: 0
-  ANIM_SWIM_SPECIAL:
-    animLengthSeconds: 0
-    animPlayTime: 0
-    queuePlay: 0
-  _debug_animate: 1
-  inHand: {fileID: 0}
-  canSwitchEquipment: 1
 --- !u!135 &1871598380
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -230,7 +183,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-6888434418749207128
+--- !u!114 &1782161005188727655
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,13 +192,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5617977793141266936}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 987e4a43c11092648b197254bbaac27a, type: 3}
+  m_Script: {fileID: 11500000, guid: ce6f7a7f61843b641bb46bf6661ac7f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 2
-  _addedNetworkObject: {fileID: 0}
-  _networkObjectCache: {fileID: 0}
-  MOVE_SPEED: 5.5
 --- !u!1 &6127505901302110174
 GameObject:
   m_ObjectHideFlags: 0
