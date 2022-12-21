@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerWalkState : PlayerBaseState
+public class PlayerFlipState : PlayerBaseState
 {
-    public PlayerWalkState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
+    public PlayerFlipState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
         IsRootState = true;
         //InitialiseSubState(); Not a super state (i.e "grounded" -> walk, run, idle. OR: "digging" -> slow, fast)
@@ -12,10 +12,12 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Walking");
+        Debug.Log("Flipping");
+
+        Ctx.DirectionVector = Ctx.MoveInput;
 
         // TODO: switch to network animator
-        Ctx.Anim.CrossFade(Ctx.AnimWalkHash, 0, 0);
+        Ctx.Anim.CrossFade(Ctx.AnimFlipHash, 0, 0);
     }
 
     public override void UpdateState()
@@ -31,13 +33,19 @@ public class PlayerWalkState : PlayerBaseState
 
     public override bool CheckSwitchState()
     {
-        if (!Ctx.IsMovementPressed)
+        AnimatorStateInfo animStateInfo = Ctx.Anim.GetCurrentAnimatorStateInfo(0);
+        float NTime = animStateInfo.normalizedTime;
+
+        if (NTime > 1.0f)
         {
-            SwitchState(Factory.Idle());
-        }
-        if (Vector2.Angle(Ctx.DirectionVector, Ctx.MoveInput) >= 120f)
-        {
-            SwitchState(Factory.Flip());
+            if (!Ctx.IsMovementPressed)
+            {
+                SwitchState(Factory.Idle());
+            }
+            else
+            {
+                SwitchState(Factory.Walk());
+            }
         }
         return false;
     }

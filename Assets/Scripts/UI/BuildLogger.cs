@@ -22,10 +22,8 @@ public class BuildLogger : MonoBehaviour
         // for onscreen...
         myLog = myLog + "\n" + logString;
 
-        while (myLog.Split('\n').Length > kLines) {
-            string[] newLog = new string[myLog.Length - 1];
-            myLog.Split('\n').CopyTo(newLog, 1);
-            myLog = String.Join("\n", newLog);
+        if (myLog.Split('\n').Length > kLines) {
+            myLog = logString;
         }
 
         /*

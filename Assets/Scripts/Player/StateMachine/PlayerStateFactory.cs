@@ -15,4 +15,8 @@ public class PlayerStateFactory
     {
         return new PlayerWalkState(_context, this);
     }
+    public PlayerBaseState Flip()
+    {
+        return new PlayerFlipState(_context, this);
+    }
 }
