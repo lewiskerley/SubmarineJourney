@@ -8,6 +8,11 @@ public class Drill : Equipment
     public LayerMask targetLayers;
     public float damagePerTick;
 
+    public override EquipmentItems GetItemType()
+    {
+        return EquipmentItems.Drill;
+    }
+
     public override void UseWithCooldown()
     {
         //Debug.DrawRay(curPlayerHolding.transform.position, curPlayerHolding.transform.up, Color.red, 0.2f);

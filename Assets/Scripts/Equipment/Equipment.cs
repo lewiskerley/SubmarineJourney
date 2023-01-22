@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Equipment : MonoBehaviour
 {
     protected Transform followTransform;
-    protected Player curPlayerHolding;
+    protected PlayerStateMachine curPlayerHolding;
     public float cooldownTime;
     private float timeLeft;
     private bool playerInRange;
@@ -49,7 +49,7 @@ public abstract class Equipment : MonoBehaviour
         }
 
         //Debug.Log("Picked up");
-        curPlayerHolding = player.GetComponent<Player>();
+        curPlayerHolding = player.GetComponent<PlayerStateMachine>();
         followTransform = mesh;
         transform.SetParent(followTransform);
         transform.localPosition = Vector3.zero;
@@ -76,4 +76,13 @@ public abstract class Equipment : MonoBehaviour
 
         timeLeft -= Time.deltaTime;
     }
+
+    public abstract EquipmentItems GetItemType();
+}
+
+
+public enum EquipmentItems
+{
+    Empty,
+    Drill
 }

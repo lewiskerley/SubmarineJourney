@@ -1,3 +1,5 @@
+using FishNet;
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,15 +15,20 @@ public class PlayerStateMachine : MonoBehaviour
     private PlayerControls _playerControls;
     private Vector2 _currentMovementInput;
     private bool _isMovementPressed;
+    private EquipmentItems _equippedItemType;
+    private Equipment _equippedItem;
 
     // magic numbers
     private int _zero = 0;
+
+    // extras
+    private bool _canSwitchEquipment = true;
 
     // applied movement variables
     private Vector2 _moveVector;
     private Vector2 _directionVector;
     private float _moveSpeed = 5.5f;
-    //private Rigidbody rb;
+    private Rigidbody rb;
 
     // animations
     private Animator _anim;
@@ -32,6 +39,8 @@ public class PlayerStateMachine : MonoBehaviour
     // public getters / setters
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     public bool IsMovementPressed { get { return _isMovementPressed; } set { _isMovementPressed = value;} }
+    public bool EquippedEmpty { get { return _equippedItemType == EquipmentItems.Empty; } }
+    public bool EquippedDrill { get { return _equippedItemType == EquipmentItems.Drill; } }
     public Animator Anim { get { return _anim; } }
     public int AnimIdleHash { get { return _animIdleHash; } }
     public int AnimWalkHash { get { return _animWalkHash; } }
@@ -50,19 +59,26 @@ public class PlayerStateMachine : MonoBehaviour
         _playerControls = new PlayerControls();
 
         _anim = GetComponentInChildren<Animator>();
-        //rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
 
         _animIdleHash = Animator.StringToHash("Player_Idle");
         _animWalkHash = Animator.StringToHash("Player_Swim");
         _animFlipHash = Animator.StringToHash("Player_Direction_Switch");
 
         _states = new PlayerStateFactory(this);
-        _currentState = _states.Idle();
+        _currentState = _states.EmptyHand();
+        _equippedItemType = EquipmentItems.Empty;
+        _equippedItem = null;
+        _canSwitchEquipment = true;
         _currentState.EnterState();
 
         _playerControls.Map.Move.started += OnMovementInput;
         _playerControls.Map.Move.canceled += OnMovementInput;
         _playerControls.Map.Move.performed += OnMovementInput;
+        _playerControls.Map.Equip.started += OnEquipKeyDown;
+
+        //InstanceFinder.TimeManager.OnTick += Move;
+        //InstanceFinder.TimeManager.OnPostTick += Move;
     }
 
     void OnMovementInput(InputAction.CallbackContext context)
@@ -70,15 +86,21 @@ public class PlayerStateMachine : MonoBehaviour
         _currentMovementInput = context.ReadValue<Vector2>();
         _isMovementPressed = _currentMovementInput.x != _zero || _currentMovementInput.y != _zero;
     }
+    void OnEquipKeyDown(InputAction.CallbackContext context)
+    {
+        if (_equippedItemType != EquipmentItems.Empty) // Drop Item
+        {
+            TryDropEquipment();
+        }
+        else if (_equippedItemType == EquipmentItems.Empty) // Pickup Item
+        {
+            TrySetEquipment();
+        }
+    }
 
     private void Move()
     {
-        // TODO: FIX RIGIDBODY MOVEMENT CAUSE I NEED COLLISIONS!
-        //rb.velocity = new Vector3(_moveVector.x, _moveVector.y, 0);
-        //rb.AddForce(new Vector3(_moveVector.x, _moveVector.y, 0) - rb.velocity, ForceMode.VelocityChange);
-        //Debug.Log(rb.velocity);
-
-        //transform.position += new Vector3(_moveVector.x, _moveVector.y, 0) * Time.deltaTime;
+        rb.velocity = new Vector3(_moveVector.x, _moveVector.y, 0);
     }
 
     private void PlayerRotationUpdate()
@@ -91,11 +113,68 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Update()
     {
-        //Debug.Log(_currentState);
         _currentState.UpdateStates();
 
         Move();
         PlayerRotationUpdate();
+    }
+
+    public void UseEquipmentUpdate()
+    {
+        if (_equippedItem != null)
+        {
+            _equippedItem.UseUpdate();
+        }
+    }
+
+    public bool TrySetEquipment()
+    {
+        if (!_canSwitchEquipment)
+        {
+            return false;
+        }
+
+        // TODO: Make this work when I redo world storage!
+        Equipment equipment = null;
+        foreach (Equipment e in WorldData.instance.GetEquipmentList())
+        {
+            if (e.IsPlayerInRange())
+            {
+                equipment = e;
+                break;
+            }
+        }
+
+        if (equipment == null)
+        {
+            return false;
+        }
+
+        _equippedItem = equipment;
+        _equippedItem.Equip(transform);
+        _equippedItemType = equipment.GetItemType();
+        StartCoroutine(SwapEquipmentDelay());
+        return true;
+    }
+    public bool TryDropEquipment()
+    {
+        if (!_canSwitchEquipment)
+        {
+            return false;
+        }
+
+        _equippedItemType = EquipmentItems.Empty;
+        _equippedItem.Drop();
+        _equippedItem = null;
+
+        StartCoroutine(SwapEquipmentDelay());
+        return true;
+    }
+    IEnumerator SwapEquipmentDelay()
+    {
+        _canSwitchEquipment = false;
+        yield return new WaitForEndOfFrame();
+        _canSwitchEquipment = true;
     }
 
     private void OnEnable()

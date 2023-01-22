@@ -6,7 +6,7 @@ public class PlayerFlipState : PlayerBaseState
 {
     public PlayerFlipState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
-        IsRootState = true;
+        IsRootState = false;
         //InitialiseSubState(); Not a super state (i.e "grounded" -> walk, run, idle. OR: "digging" -> slow, fast)
     }
 
@@ -31,7 +31,7 @@ public class PlayerFlipState : PlayerBaseState
         }
     }
 
-    public override bool CheckSwitchState()
+    public override void CheckSwitchState()
     {
         AnimatorStateInfo animStateInfo = Ctx.Anim.GetCurrentAnimatorStateInfo(0);
         float NTime = animStateInfo.normalizedTime;
@@ -40,14 +40,13 @@ public class PlayerFlipState : PlayerBaseState
         {
             if (!Ctx.IsMovementPressed)
             {
-                SwitchState(Factory.Idle());
+                SwitchState(Factory.EmptyHand_Idle());
             }
             else
             {
-                SwitchState(Factory.Walk());
+                SwitchState(Factory.EmptyHand_Walk());
             }
         }
-        return false;
     }
 
     public override void ExitState() { }

@@ -33,6 +33,14 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": ""NormalizeVector2"",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Equip"",
+                    ""type"": ""Button"",
+                    ""id"": ""61e444b1-db63-497b-9642-d49e9e050a50"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": ""NormalizeVector2"",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -134,6 +142,17 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b31fe03a-9153-4b14-89d9-6d0a16daaa66"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Equip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -144,6 +163,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         m_Map = asset.FindActionMap("Map", throwIfNotFound: true);
         m_Map_Console = m_Map.FindAction("Console", throwIfNotFound: true);
         m_Map_Move = m_Map.FindAction("Move", throwIfNotFound: true);
+        m_Map_Equip = m_Map.FindAction("Equip", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -195,12 +215,14 @@ public class @PlayerControls : IInputActionCollection, IDisposable
     private IMapActions m_MapActionsCallbackInterface;
     private readonly InputAction m_Map_Console;
     private readonly InputAction m_Map_Move;
+    private readonly InputAction m_Map_Equip;
     public struct MapActions
     {
         private @PlayerControls m_Wrapper;
         public MapActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Console => m_Wrapper.m_Map_Console;
         public InputAction @Move => m_Wrapper.m_Map_Move;
+        public InputAction @Equip => m_Wrapper.m_Map_Equip;
         public InputActionMap Get() { return m_Wrapper.m_Map; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -216,6 +238,9 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @Move.started -= m_Wrapper.m_MapActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_MapActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_MapActionsCallbackInterface.OnMove;
+                @Equip.started -= m_Wrapper.m_MapActionsCallbackInterface.OnEquip;
+                @Equip.performed -= m_Wrapper.m_MapActionsCallbackInterface.OnEquip;
+                @Equip.canceled -= m_Wrapper.m_MapActionsCallbackInterface.OnEquip;
             }
             m_Wrapper.m_MapActionsCallbackInterface = instance;
             if (instance != null)
@@ -226,6 +251,9 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Equip.started += instance.OnEquip;
+                @Equip.performed += instance.OnEquip;
+                @Equip.canceled += instance.OnEquip;
             }
         }
     }
@@ -234,5 +262,6 @@ public class @PlayerControls : IInputActionCollection, IDisposable
     {
         void OnConsole(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
+        void OnEquip(InputAction.CallbackContext context);
     }
 }

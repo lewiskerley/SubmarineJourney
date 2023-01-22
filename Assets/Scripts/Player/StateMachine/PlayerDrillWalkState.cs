@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerWalkState : PlayerBaseState
+public class PlayerDrillWalkState : PlayerBaseState
 {
-    public PlayerWalkState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
+    public PlayerDrillWalkState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
         IsRootState = false;
         //InitialiseSubState(); Not a super state (i.e "grounded" -> walk, run, idle. OR: "digging" -> slow, fast)
@@ -12,7 +12,7 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Walking");
+        Debug.Log("(Drill) Walking");
 
         // TODO: switch to network animator
         Ctx.Anim.CrossFade(Ctx.AnimWalkHash, 0, 0);
@@ -33,11 +33,7 @@ public class PlayerWalkState : PlayerBaseState
     {
         if (!Ctx.IsMovementPressed)
         {
-            SwitchState(Factory.EmptyHand_Idle());
-        }
-        if (Vector2.Angle(Ctx.DirectionVector, Ctx.MoveInput) >= 120f)
-        {
-            SwitchState(Factory.EmptyHand_Flip());
+            SwitchState(Factory.DrillHand_Idle());
         }
     }
 
