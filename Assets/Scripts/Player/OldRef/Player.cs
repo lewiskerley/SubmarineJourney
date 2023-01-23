@@ -129,13 +129,13 @@ public class Player : NetworkBehaviour
         }
 
         Equipment equipment = null;
-        foreach (Equipment e in WorldData.instance.GetEquipmentList())
+        /*foreach (Equipment e in WorldData.instance.GetEquipmentList()) RE-ENABLE IF USING.
         {
             if (e.IsPlayerInRange())
             {
                 equipment = e;
             }
-        }
+        }*/
 
         if (equipment == null)
         {

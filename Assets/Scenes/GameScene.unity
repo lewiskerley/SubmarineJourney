@@ -92709,8 +92709,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd540f2b1181e144a5f646d81cb9edc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newSeed: 1
-  _SEED: 1920593
+  worldSaveName: world.sj
+  newSeed: 0
+  playerSpawnPoint: {x: -16, y: 36}
   offset: {x: -4, y: -3}
   baseHeight: 1
   heightGrowth: 0.4

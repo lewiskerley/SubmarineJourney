@@ -2,6 +2,7 @@
 
 public abstract class BlockData
 {
+    /*
     //Store all this into 1 float in the future
     protected float health;
     protected float maxHealth;
@@ -23,4 +24,5 @@ public abstract class BlockData
     {
         return BlockResources.i.GetMesh(this);
     }
+    */
 }

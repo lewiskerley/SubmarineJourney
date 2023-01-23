@@ -50,15 +50,15 @@ public class MeshCombiner : MonoBehaviour
 
         Mesh finalMesh = new Mesh();
 
-        CombineInstance[] combiners = new CombineInstance[filters.Length];
+        CombineInstance[] combiners = new CombineInstance[filters.Length - 1];
 
-        for (int i = 0; i < filters.Length; i++)
+        for (int i = 1; i < filters.Length; i++) // skip index 0, i.e itself.
         {
-            if (filters[i].transform == transform) { continue; }
+            //if (filters[i].transform == transform) { continue; } // itself
 
-            combiners[i].subMeshIndex = 0;
-            combiners[i].mesh = filters[i].sharedMesh;
-            combiners[i].transform = filters[i].transform.localToWorldMatrix;
+            combiners[i - 1].subMeshIndex = 0;
+            combiners[i - 1].mesh = filters[i].sharedMesh;
+            combiners[i - 1].transform = filters[i].transform.localToWorldMatrix;
         }
 
         finalMesh.CombineMeshes(combiners);

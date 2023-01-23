@@ -1,5 +1,6 @@
 ﻿public class BlockData_Rock : BlockData
 {
+    /*
     public BlockData_Rock(float maxHealth) : base(maxHealth)
     {
         //Extra Data Initialisation
@@ -16,4 +17,5 @@
 
         return (int)((health / maxHealth) * 100);
     }
+    */
 }

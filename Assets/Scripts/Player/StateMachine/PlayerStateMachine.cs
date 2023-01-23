@@ -136,14 +136,14 @@ public class PlayerStateMachine : MonoBehaviour
 
         // TODO: Make this work when I redo world storage!
         Equipment equipment = null;
-        foreach (Equipment e in WorldData.instance.GetEquipmentList())
+        /*foreach (Equipment e in WorldData.instance.GetEquipmentList())
         {
             if (e.IsPlayerInRange())
             {
                 equipment = e;
                 break;
             }
-        }
+        }*/
 
         if (equipment == null)
         {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class WorldData
 {
+    /*
     public static WorldData instance { get; private set; }
 
     float[,] map;
@@ -115,4 +116,5 @@ public class WorldData
         worldData.Add(arrayPos, data);
         return data;
     }
+    */
 }

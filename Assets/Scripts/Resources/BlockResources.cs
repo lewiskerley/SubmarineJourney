@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class BlockResources : MonoBehaviour
 {
+    /*
     private static BlockResources _i;
     public static BlockResources i
     {
@@ -54,12 +55,12 @@ public class BlockResources : MonoBehaviour
 
         Debug.LogError("No Mesh for health percent " + healthPercent + "% in " + meshes + " array!");
         return null;
-    }
+    }*/
 }
-
+/*
 [System.Serializable]
 public struct HealthPercentBlockMesh
 {
     public int lowerboundPercent;
     public Mesh mesh;
-}
+}*/

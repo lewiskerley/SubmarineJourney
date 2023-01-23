@@ -25,7 +25,7 @@ public class Volcano : MonoBehaviour
         errupt = true;
 
         //TODO: Send death wave: (Fast speed, goes infinite)
-        WorldData.instance.GetMap();
+        //WorldData.instance.GetMap();
         Debug.Log("Deadly Wave");
     }
 
@@ -40,7 +40,7 @@ public class Volcano : MonoBehaviour
             if (errupt) { break; } //Cancel Activation Wave Early
 
             //TODO: Send wave: (Slow speed, every 4th wave goes infinite)
-            WorldData.instance.GetMap();
+            //WorldData.instance.GetMap();
             Debug.Log("Small Wave");
         }
 

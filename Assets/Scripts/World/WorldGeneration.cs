@@ -1,17 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class WorldGeneration : MonoBehaviour
 {
+    [Header("World Save/Load")]
     public static WorldGeneration i;
+    private World worldData; // saved to [Application.persistentDataPath + "/worlds/"]
+    public string worldSaveName;
 
     private const int maxMeshCountPerGroup = 200;
 
     [Header("World Settings")]
     public bool newSeed = false;
-    [Range(0, 9999999)] public int _SEED;
+    //[Range(0, 9999999)] public int _SEED;
 
+    public Vector2 playerSpawnPoint = new Vector2(-16, 36);
     public Vector2Int offset = new Vector2Int(-4, -3);
     public float baseHeight = 1;
     public float heightGrowth = 0.4f;
@@ -67,7 +72,7 @@ public class WorldGeneration : MonoBehaviour
     public int blocksBetweenBlockageVariance = 7;
 
 
-    void Start()
+    private void Awake()
     {
         if (i != null)
         {
@@ -76,11 +81,95 @@ public class WorldGeneration : MonoBehaviour
         }
 
         i = this;
+    }
 
-        if (newSeed) { _SEED = Random.Range(0, 9999999); }
-        CreateWorld(new FractalBrownianGenerator(_SEED));
+    void Start()
+    {
+        if (newSeed)
+        {
+            NewGame();
+        }
+        else
+        {
+            LoadGame();
+        }
+
+        //Debug.Log(worldData.GetPlayerPosition());
+        //GameObject.FindObjectOfType<PlayerStateMachine>().transform.position = worldData.GetPlayerPosition(); // TODO: This should probably belong to the player somehow
+        CreateWorld(new FractalBrownianGenerator(worldData.SEED));
         SpawnDrill();
-        StartCoroutine(VolcanoesLoop());
+        //StartCoroutine(VolcanoesLoop());
+    }
+
+    private void NewGame()
+    {
+        int newSeed = Random.Range(0, 9999999);
+        this.worldData = new World(newSeed);
+
+        Debug.Log("Successfully Created World! [Seed: " + worldData.SEED + "]");
+    }
+    private void LoadGame()
+    {
+        string fullPath = Path.Combine(Application.persistentDataPath + "/worlds/", worldSaveName);
+        if (File.Exists(fullPath))
+        {
+            try
+            {
+                string dataToLoad = "";
+                using (FileStream stream = new FileStream(fullPath, FileMode.Open))
+                {
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        dataToLoad = reader.ReadToEnd();
+                    }
+                }
+
+                worldData = JsonUtility.FromJson<World>(dataToLoad);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error, cannot load data to file: " + fullPath + "\n" + e);
+                // TODO: Have something in place rather than creating a new one. I.e interrupt.
+            }
+        }
+
+        if (this.worldData == null)
+        {
+            Debug.LogWarning("No Saved World, Creating New World");
+            NewGame();
+            return;
+        }
+
+        Debug.Log("Successfully Loaded World! [Seed: " + worldData.SEED + "]");
+    }
+    private void SaveGame()
+    {
+        //worldData.UpdatePlayerPosition(GameObject.FindObjectOfType<PlayerStateMachine>().transform.position); // TODO: Update position (or player data) every few minutes
+
+        string fullPath = Path.Combine(Application.persistentDataPath + "/worlds/", worldSaveName);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+            string dataToStore = JsonUtility.ToJson(worldData, true);
+            using (FileStream stream = new FileStream(fullPath, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    writer.Write(dataToStore);
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error, cannot save file to: " + fullPath + "\n" + e);
+            return;
+        }
+
+        Debug.Log("Successfully Saved World! [Seed: " + worldData.SEED + "]");
+    }
+    private void OnApplicationQuit()
+    {
+        SaveGame();
     }
 
     private GameObject GetRockEdgePiece(float[,] heightMap, int x, int y)
@@ -121,7 +210,7 @@ public class WorldGeneration : MonoBehaviour
     {
         //Temp Pos and Spawning
         GameObject drillObj = Instantiate(drillPrefab, new Vector3(-14, 35, 0), Quaternion.identity);
-        WorldData.instance.AddEquipment(drillObj.GetComponent<Equipment>());
+        //WorldData.instance.AddEquipment(drillObj.GetComponent<Equipment>()); TODO 1
     }
 
     private IEnumerator VolcanoesLoop()
@@ -264,7 +353,7 @@ public class WorldGeneration : MonoBehaviour
                 else //Wall
                 {
                     GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    obj.GetComponent<MeshFilter>().sharedMesh = BlockResources.i.GetDefaultRockMesh();
+                    //obj.GetComponent<MeshFilter>().sharedMesh = BlockResources.i.GetDefaultRockMesh(); TODO 2
                     //GameObject obj = Instantiate(BlockResources.i.GetDefaultRockMesh());
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                     obj.transform.parent = meshHeightCurChunkParents[height.ToString()];
@@ -283,7 +372,7 @@ public class WorldGeneration : MonoBehaviour
         }
 
         //World data stored as an instance
-        WorldData.Create(worldHeightMap, toughWallThreshold, offset);
+        //WorldData.Create(worldHeightMap, toughWallThreshold, offset); TODO 3
 
         StartCoroutine(CombineAllMeshesNextFrame(meshHeightParentsAll));
     }
@@ -321,9 +410,10 @@ public class WorldGeneration : MonoBehaviour
         return t;
     }
 
+    // not in use
     private int[,] CreateBlockages(int[,] worldArray)
     {
-        Random.InitState(_SEED + 4);
+        Random.InitState(worldData.SEED + 4);
 
         int nextBlockageIndex = blocksBetweenBlockage + Random.Range(-blocksBetweenBlockageVariance, blocksBetweenBlockageVariance + 1);
         for (int j = 0; j < worldArray.GetLength(1) - 50; j++)
@@ -765,7 +855,7 @@ public class WorldGeneration : MonoBehaviour
 
     private float[,] ConfigureStals(float[,] worldArray) //CHANGE FOR NEW GENERATION! I.E MULTIPLE AIR POCKETS PER X
     {
-        Random.InitState(_SEED + 1);
+        Random.InitState(worldData.SEED + 1);
 
         for (int j = 1; j < worldArray.GetLength(1) - 1; j++)
         {
@@ -847,7 +937,7 @@ public class WorldGeneration : MonoBehaviour
 
     private float[,] ConfigureCrystals(float[,] worldArray)
     {
-        Random.InitState(_SEED + 2);
+        Random.InitState(worldData.SEED + 2);
 
         int nextSingle = blocksBetweenSingles + Random.Range(-blocksBetweenSinglesVariance, blocksBetweenSinglesVariance + 1);
         int nextGroup = blocksBetweenGroups + Random.Range(-blocksBetweenGroupsVariance, blocksBetweenGroupsVariance + 1);
@@ -985,7 +1075,7 @@ public class WorldGeneration : MonoBehaviour
     //Assume up down left right in range of array
     private bool PlaceCrystalCove(ref float[,] worldArray, int x, int y)
     {
-        Random.InitState(_SEED + 3);
+        Random.InitState(worldData.SEED + 3);
 
         int leftCount = 0;
         int rightCount = 0;

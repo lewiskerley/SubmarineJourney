@@ -6,7 +6,7 @@ public class BuildLogger : MonoBehaviour
 {
     PlayerControls _playerControls;
     string myLog = "*begin log";
-    string filename = "";
+    //string filename = "";
     bool doShow = false;
     int kLines = 12;
     void OnEnable() { Application.logMessageReceived += Log; _playerControls.Enable(); }
