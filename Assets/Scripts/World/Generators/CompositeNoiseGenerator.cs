@@ -28,10 +28,11 @@ public class CompositeNoiseGenerator : IGenerator
     public int[,] Generate()
     {
         int[,] world = new int[height, width];
+        /*
         float airUpperNoiseLimit = 0.55f;
         float airLowerNoiseLimit = 0.45f;
 
-        /*
+        
         for (int y = 0; y < world.GetLength(0); y++)
         {
             for (int x = 0; x < world.GetLength(1); x++)

@@ -7,16 +7,20 @@ public class WorldGeneration : MonoBehaviour
 {
     [Header("World Save/Load")]
     public static WorldGeneration i;
-    private World worldData; // saved to [Application.persistentDataPath + "/worlds/"]
+    public World worldData { get; private set; } // saved to [Application.persistentDataPath + "/worlds/"]
     public string worldSaveName;
 
     private const int maxMeshCountPerGroup = 200;
+
+    [Header("Player Settings")]
+    public GameObject playerPrefab;
+    public Vector2 playerSpawnPoint = new Vector2(-16, 36);
+    public Cinemachine.CinemachineVirtualCamera playerCamera;
 
     [Header("World Settings")]
     public bool newSeed = false;
     //[Range(0, 9999999)] public int _SEED;
 
-    public Vector2 playerSpawnPoint = new Vector2(-16, 36);
     public Vector2Int offset = new Vector2Int(-4, -3);
     public float baseHeight = 1;
     public float heightGrowth = 0.4f;
@@ -24,7 +28,8 @@ public class WorldGeneration : MonoBehaviour
     public float toughWallThreshold = 3;
 
     //public GameObject rockEdgeGenericPiece;
-    [Header("Temp Visuals")]
+    [Header("Visuals")]
+    public BlockAtlas models;
     public Material wallMaterial;
     public Material toughWallMaterial;
 
@@ -32,10 +37,9 @@ public class WorldGeneration : MonoBehaviour
 
     [Header("Drills")]
     public GameObject drillPrefab;
+    public Vector2 drillSpawnPoint = new Vector2(-14, 35);
 
     [Header("Stalagmites / Stalactites")]
-    public GameObject stalagmiteBotPrefab;
-    public GameObject stalactiteTopPrefab;
     public float stalagmiteBotChance = 0.1f;
     public float stalactiteTopChance = 0.1f;
     public int stalSpawnMinWidth = 3;
@@ -49,21 +53,11 @@ public class WorldGeneration : MonoBehaviour
     public int blocksBetweenGroupsVariance = 30;
     public int groupEntryPathLength = 4;
     public int crystalsInGroup = 9;
-    public GameObject crystalEdgeUp;
-    public GameObject crystalEdgeDown;
-    public GameObject crystalEdgeLeft;
-    public GameObject crystalEdgeRight;
-    public GameObject crystalRootUp;
-    public GameObject crystalRootDown;
-    public GameObject crystalRootLeft;
-    public GameObject crystalRootRight;
-    public GameObject crystalBack;
     public Transform crystalParent;
 
     [Header("Volcanoes")]
     public float volcanoTimeIdleToActive;
     public float volcanoTimeActivateToErruption;
-    public GameObject volcano;
     public Transform volcanoParent;
     private List<Volcano> worldVolcanoes;
 
@@ -95,9 +89,9 @@ public class WorldGeneration : MonoBehaviour
         }
 
         //Debug.Log(worldData.GetPlayerPosition());
-        //GameObject.FindObjectOfType<PlayerStateMachine>().transform.position = worldData.GetPlayerPosition(); // TODO: This should probably belong to the player somehow
         CreateWorld(new FractalBrownianGenerator(worldData.SEED));
-        SpawnDrill();
+        SpawnPlayer();
+        SpawnEquipment();
         //StartCoroutine(VolcanoesLoop());
     }
 
@@ -105,6 +99,8 @@ public class WorldGeneration : MonoBehaviour
     {
         int newSeed = Random.Range(0, 9999999);
         this.worldData = new World(newSeed);
+        this.worldData.AddPlayer(playerSpawnPoint);
+        this.worldData.AddEquipment(EquipmentItems.Drill, drillSpawnPoint);
 
         Debug.Log("Successfully Created World! [Seed: " + worldData.SEED + "]");
     }
@@ -144,7 +140,7 @@ public class WorldGeneration : MonoBehaviour
     }
     private void SaveGame()
     {
-        //worldData.UpdatePlayerPosition(GameObject.FindObjectOfType<PlayerStateMachine>().transform.position); // TODO: Update position (or player data) every few minutes
+        worldData.SyncEntityPositions();
 
         string fullPath = Path.Combine(Application.persistentDataPath + "/worlds/", worldSaveName);
         try
@@ -206,11 +202,23 @@ public class WorldGeneration : MonoBehaviour
         return null;
     }
 
-    private void SpawnDrill()
+    private void SpawnPlayer()
     {
-        //Temp Pos and Spawning
-        GameObject drillObj = Instantiate(drillPrefab, new Vector3(-14, 35, 0), Quaternion.identity);
-        //WorldData.instance.AddEquipment(drillObj.GetComponent<Equipment>()); TODO 1
+        GameObject obj = Instantiate(playerPrefab, worldData.playerPosition, Quaternion.identity);
+        worldData.AddLivePlayer(obj.transform);
+
+        playerCamera.Follow = obj.transform;
+    }
+    private void SpawnEquipment()
+    {
+        // Drills:
+        for (int i = 0; i < worldData.drillPositions.Count; i++)
+        {
+            GameObject obj = Instantiate(drillPrefab, worldData.drillPositions[i], Quaternion.identity);
+            worldData.AddLiveEquipment(EquipmentItems.Drill, obj.transform);
+        }
+
+        // ...
     }
 
     private IEnumerator VolcanoesLoop()
@@ -289,62 +297,62 @@ public class WorldGeneration : MonoBehaviour
                 }
                 else if (height == (int)GenFeatures.Stalagmite) //Stalagmite (BOT)
                 {
-                    GameObject obj = Instantiate(stalagmiteBotPrefab, stalParent);
+                    GameObject obj = Instantiate(models.stalagmiteBot.blockPrefab, stalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.Stalactite) //Stalactite (TOP)
                 {
-                    GameObject obj = Instantiate(stalactiteTopPrefab, stalParent);
+                    GameObject obj = Instantiate(models.stalactiteTop.blockPrefab, stalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.CrystalUp) //Crystal (TOP)
                 {
-                    GameObject obj = Instantiate(crystalEdgeUp, crystalParent);
+                    GameObject obj = Instantiate(models.crystalTop.blockPrefab, crystalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.CrystalDown) //Crystal (BOT)
                 {
-                    GameObject obj = Instantiate(crystalEdgeDown, crystalParent);
+                    GameObject obj = Instantiate(models.crystalBot.blockPrefab, crystalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.CrystalLeft) //Crystal (LEFT)
                 {
-                    GameObject obj = Instantiate(crystalEdgeLeft, crystalParent);
+                    GameObject obj = Instantiate(models.crystalLeft.blockPrefab, crystalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.CrystalRight) //Crystal (RIGHT)
                 {
-                    GameObject obj = Instantiate(crystalEdgeRight, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootUp) //Crystal Root (TOP)
-                {
-                    GameObject obj = Instantiate(crystalRootUp, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootDown) //Crystal Root (BOT)
-                {
-                    GameObject obj = Instantiate(crystalRootDown, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootLeft) //Crystal Root (LEFT)
-                {
-                    GameObject obj = Instantiate(crystalRootLeft, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootRight) //Crystal Root (RIGHT)
-                {
-                    GameObject obj = Instantiate(crystalRootRight, crystalParent);
+                    GameObject obj = Instantiate(models.crystalRight.blockPrefab, crystalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.CrystalBack) //Crystal (BACK)
                 {
-                    GameObject obj = Instantiate(crystalBack, crystalParent);
+                    GameObject obj = Instantiate(models.crystalBack.blockPrefab, crystalParent);
+                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                }
+                else if (height == (int)GenFeatures.CrystalRootUp) //Crystal Root (TOP)
+                {
+                    GameObject obj = Instantiate(models.crystalRootTop.blockPrefab, crystalParent);
+                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                }
+                else if (height == (int)GenFeatures.CrystalRootDown) //Crystal Root (BOT)
+                {
+                    GameObject obj = Instantiate(models.crystalRootBot.blockPrefab, crystalParent);
+                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                }
+                else if (height == (int)GenFeatures.CrystalRootLeft) //Crystal Root (LEFT)
+                {
+                    GameObject obj = Instantiate(models.crystalRootLeft.blockPrefab, crystalParent);
+                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                }
+                else if (height == (int)GenFeatures.CrystalRootRight) //Crystal Root (RIGHT)
+                {
+                    GameObject obj = Instantiate(models.crystalRootRight.blockPrefab, crystalParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                 }
                 else if (height == (int)GenFeatures.Volcano) //Volcano
                 {
-                    GameObject obj = Instantiate(volcano, volcanoParent);
+                    GameObject obj = Instantiate(models.volcano.blockPrefab, volcanoParent);
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
                     worldVolcanoes.Add(obj.GetComponent<Volcano>());
 
@@ -352,7 +360,9 @@ public class WorldGeneration : MonoBehaviour
                 }
                 else //Wall
                 {
-                    GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    //GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    GameObject obj = Instantiate(models.rock.blockPrefab);
+
                     //obj.GetComponent<MeshFilter>().sharedMesh = BlockResources.i.GetDefaultRockMesh(); TODO 2
                     //GameObject obj = Instantiate(BlockResources.i.GetDefaultRockMesh());
                     obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
@@ -370,9 +380,6 @@ public class WorldGeneration : MonoBehaviour
                 }
             }
         }
-
-        //World data stored as an instance
-        //WorldData.Create(worldHeightMap, toughWallThreshold, offset); TODO 3
 
         StartCoroutine(CombineAllMeshesNextFrame(meshHeightParentsAll));
     }
@@ -1483,10 +1490,10 @@ public enum GenFeatures
     CrystalDown = -6,
     CrystalLeft = -7,
     CrystalRight = -8,
-    CrystalRootUp = -9,
-    CrystalRootDown = -10,
-    CrystalRootLeft = -11,
-    CrystalRootRight = -12,
-    CrystalBack = -13,
+    CrystalBack = -9,
+    CrystalRootUp = -10,
+    CrystalRootDown = -11,
+    CrystalRootLeft = -12,
+    CrystalRootRight = -13,
     Volcano = -14
 }

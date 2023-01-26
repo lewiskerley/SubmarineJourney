@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91fcdffa4bae1874b931cc175fe474d4, type: 3}
+  m_Name: BlockAtlas
+  m_EditorClassIdentifier: 
+  rock: {fileID: 11400000, guid: f7cb42b4757569b4db7efad5b9d2aee6, type: 2}
+  stalagmiteBot: {fileID: 11400000, guid: 5f48014624a59e048af527a80b65d1aa, type: 2}
+  stalactiteTop: {fileID: 11400000, guid: d85e931c2ebb9e74cb5cd84789d7f0b9, type: 2}
+  crystalTop: {fileID: 11400000, guid: 9296d81796a662e4aaa5b661e00490d0, type: 2}
+  crystalBot: {fileID: 11400000, guid: 6b8de17771da4d44d92472e8d9153b28, type: 2}
+  crystalLeft: {fileID: 11400000, guid: ca664ef2ce7501e4db6c2a5ef9321beb, type: 2}
+  crystalRight: {fileID: 11400000, guid: e67eba96bacf8f741aaa06c439289724, type: 2}
+  crystalBack: {fileID: 11400000, guid: 0d6aae030eb0d33478803479cd65bdd0, type: 2}
+  crystalRootTop: {fileID: 11400000, guid: bb5e4c82704b03d4bb2a3f123a2a7a41, type: 2}
+  crystalRootBot: {fileID: 11400000, guid: 66ee229141494cc468a33d8bd48678e5, type: 2}
+  crystalRootLeft: {fileID: 11400000, guid: fca8906ece39de24a9ae11e58fddd23c, type: 2}
+  crystalRootRight: {fileID: 11400000, guid: c25b15acc967cc44a9c3c439bbf78b7c, type: 2}
+  volcano: {fileID: 11400000, guid: 8de72f6edf4693247ad82e58f020759f, type: 2}

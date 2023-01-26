@@ -92710,13 +92710,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldSaveName: world.sj
-  newSeed: 0
+  playerPrefab: {fileID: 5617977793141266936, guid: 3f31316b3dd048448aed09859f9bbf05, type: 3}
   playerSpawnPoint: {x: -16, y: 36}
+  playerCamera: {fileID: 1634047287}
+  newSeed: 0
   offset: {x: -4, y: -3}
   baseHeight: 1
   heightGrowth: 0.4
   heightLimit: 20
   toughWallThreshold: 3
+  models: {fileID: 11400000, guid: fff3f861aadec2848aaf6899588c57a0, type: 2}
   wallMaterial: {fileID: 2100000, guid: c9c30b710b8c5af40a601e96088f11c7, type: 2}
   toughWallMaterial: {fileID: 2100000, guid: 7327f9737b1def54bbcff000552e18fa, type: 2}
   rockEdgeRules:
@@ -92754,8 +92757,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: aefc0b3fd5a9f3746bf4aa5907883fc1, type: 2}
   - {fileID: 11400000, guid: a38b5e813943f49448c4adc1d8803b18, type: 2}
   drillPrefab: {fileID: 7234537965290122730, guid: 025285ca9d122a549bb804fbea05211c, type: 3}
-  stalagmiteBotPrefab: {fileID: 7994151940811714569, guid: 44116ec6d396e7449a7e6fa0c11b1d0a, type: 3}
-  stalactiteTopPrefab: {fileID: 4487154238759394955, guid: b8ddd802b6d3f674fb8d9a05d9c1a5a2, type: 3}
+  drillSpawnPoint: {x: -14, y: 35}
   stalagmiteBotChance: 0.1
   stalactiteTopChance: 0.15
   stalSpawnMinWidth: 3
@@ -102604,13 +102606,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1782161005188727655, guid: 3f31316b3dd048448aed09859f9bbf05, type: 3}
-      propertyPath: _addedNetworkObject
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 5617977793141266936, guid: 3f31316b3dd048448aed09859f9bbf05, type: 3}
       propertyPath: m_Name
       value: PlayerSinglePlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 5617977793141266936, guid: 3f31316b3dd048448aed09859f9bbf05, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5617977793141266943, guid: 3f31316b3dd048448aed09859f9bbf05, type: 3}
       propertyPath: m_RootOrder
