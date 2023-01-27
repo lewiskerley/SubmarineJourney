@@ -138,7 +138,11 @@ public class WorldGeneration : MonoBehaviour
             return;
         }
 
+        // Regenerating the height map saves 100s of MB and takes a fraction of a second currently.
+        float[,] map = GenerateWorldHeightmap(new FractalBrownianGenerator(worldData.SEED), worldData.SEED);
+
         worldData.SetBlockAtlas(models);
+        worldData.SetHeightmap(map);
         Debug.Log("Successfully Loaded World! [Seed: " + worldData.SEED + "]");
     }
     private void SaveGame()

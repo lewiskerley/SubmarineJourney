@@ -11,7 +11,7 @@ public class World
     // Player, Equipment and other entity positions
 
     public int SEED;
-    [SerializeField] public MapRow[] MAP; // Heightmap with negative features: GenFeatures
+    [SerializeField] public MapRow[] MAP { get; private set; } // Heightmap with negative features: GenFeatures
     public Vector2Int worldOffset;
     public BlockAtlas worldAtlas { get; private set; }
 
@@ -27,6 +27,16 @@ public class World
     public World(int seed, float[,] map, Vector2Int worldOffset)
     {
         this.SEED = seed;
+        SetHeightmap(map);
+        this.worldOffset = worldOffset;
+        this.worldEdits = new List<BlockEdit>();
+    }
+    public void SetBlockAtlas(BlockAtlas atlas)
+    {
+        worldAtlas = atlas;
+    }
+    public void SetHeightmap(float[,] map)
+    {
         this.MAP = new MapRow[map.GetLength(0)];
         for (int i = 0; i < map.GetLength(0); i++)
         {
@@ -36,12 +46,6 @@ public class World
                 MAP[i].row[j] = map[i, j];
             }
         }
-        this.worldOffset = worldOffset;
-        this.worldEdits = new List<BlockEdit>();
-    }
-    public void SetBlockAtlas(BlockAtlas atlas)
-    {
-        worldAtlas = atlas;
     }
     public void AddPlayer(Vector2 pos)
     {
