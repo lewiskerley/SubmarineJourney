@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 [CreateAssetMenu(fileName = "NewBlockAtlas", menuName = "Blocks/Atlas")]
 public class BlockAtlas : ScriptableObject
 {
     public BlockClass rock;
+    public BlockClass rockEdge; // Has no model
 
     public BlockClass stalagmiteBot;
     public BlockClass stalactiteTop;

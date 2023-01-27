@@ -261,11 +261,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60dff294f9259624bb17572f91de9d80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cooldownTime: 0.3
+  cooldownTime: 0.1
   targetLayers:
     serializedVersion: 2
     m_Bits: 1
-  damagePerTick: 23
+  damagePerTick: 8
 --- !u!135 &3046179095328790102
 SphereCollider:
   m_ObjectHideFlags: 0

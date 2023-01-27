@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: Rock
   m_EditorClassIdentifier: 
   blockName: Rock
-  blockPrefab: {fileID: 4088422907188610421, guid: 368a6e6970103c7468dd58609ccd5b9c, type: 3}
+  maxHealth: 100
+  models:
+  - lowerBound: 100
+    model: {fileID: 4088422907188610421, guid: 368a6e6970103c7468dd58609ccd5b9c, type: 3}
+  - lowerBound: 0
+    model: {fileID: 4088422907188610421, guid: e3771bae4f965b946ab6bf5f6a8a4ef8, type: 3}

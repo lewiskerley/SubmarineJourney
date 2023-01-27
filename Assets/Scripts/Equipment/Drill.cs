@@ -24,6 +24,8 @@ public class Drill : Equipment
         }
 
         Vector2 hitPos = hit.collider.transform.position;
+        Vector2Int hitPosInt = new Vector2Int((int)hitPos.x, (int)hitPos.y);
         //WorldData.instance.DamageBlockAtWorldPos((int)hitPos.x, (int)hitPos.y, damagePerTick, hit.collider.transform);
+        WorldGeneration.i.UpdateBlockHealth(hit.collider.transform, hitPosInt, -damagePerTick);
     }
 }

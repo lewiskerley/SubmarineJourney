@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f85df80bf9b7d748b4edf5ad8c93a37, type: 3}
-  m_Name: CrystalBack
+  m_Name: RockEdge
   m_EditorClassIdentifier: 
-  blockName: Crystal
+  blockName: Rock
+  maxHealth: 50
   models:
   - lowerBound: 0
-    model: {fileID: 4945862330019613816, guid: a0eef7240290e6f4c8a4553722f94d81, type: 3}
+    model: {fileID: 4088422907188610421, guid: 368a6e6970103c7468dd58609ccd5b9c, type: 3}

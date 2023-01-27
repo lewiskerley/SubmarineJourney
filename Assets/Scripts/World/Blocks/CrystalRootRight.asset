@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: CrystalRootRight
   m_EditorClassIdentifier: 
   blockName: Rock
-  blockPrefab: {fileID: 1587709330768379425, guid: b58cf9ce6d33b294696e870abfbe8192, type: 3}
+  models:
+  - lowerBound: 0
+    model: {fileID: 1587709330768379425, guid: b58cf9ce6d33b294696e870abfbe8192, type: 3}

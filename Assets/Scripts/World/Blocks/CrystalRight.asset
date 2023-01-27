@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: CrystalRight
   m_EditorClassIdentifier: 
   blockName: Crystal
-  blockPrefab: {fileID: 3474183548827531494, guid: 1e7c1119447cc8e43a89cb63f9188505, type: 3}
+  models:
+  - lowerBound: 0
+    model: {fileID: 3474183548827531494, guid: 1e7c1119447cc8e43a89cb63f9188505, type: 3}

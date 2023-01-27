@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: StalagmiteBot
   m_EditorClassIdentifier: 
   blockName: Stalagmite
-  blockPrefab: {fileID: 7994151940811714569, guid: 44116ec6d396e7449a7e6fa0c11b1d0a, type: 3}
+  models:
+  - lowerBound: 0
+    model: {fileID: 7994151940811714569, guid: 44116ec6d396e7449a7e6fa0c11b1d0a, type: 3}

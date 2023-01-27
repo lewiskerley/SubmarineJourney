@@ -88,8 +88,7 @@ public class WorldGeneration : MonoBehaviour
             LoadGame();
         }
 
-        //Debug.Log(worldData.GetPlayerPosition());
-        CreateWorld(new FractalBrownianGenerator(worldData.SEED));
+        CreateWorld();
         SpawnPlayer();
         SpawnEquipment();
         //StartCoroutine(VolcanoesLoop());
@@ -98,7 +97,10 @@ public class WorldGeneration : MonoBehaviour
     private void NewGame()
     {
         int newSeed = Random.Range(0, 9999999);
-        this.worldData = new World(newSeed);
+        float[,] map = GenerateWorldHeightmap(new FractalBrownianGenerator(newSeed), newSeed);
+
+        this.worldData = new World(newSeed, map, offset);
+        worldData.SetBlockAtlas(models);
         this.worldData.AddPlayer(playerSpawnPoint);
         this.worldData.AddEquipment(EquipmentItems.Drill, drillSpawnPoint);
 
@@ -136,6 +138,7 @@ public class WorldGeneration : MonoBehaviour
             return;
         }
 
+        worldData.SetBlockAtlas(models);
         Debug.Log("Successfully Loaded World! [Seed: " + worldData.SEED + "]");
     }
     private void SaveGame()
@@ -240,15 +243,27 @@ public class WorldGeneration : MonoBehaviour
             }
         }
     }
-
-
-    private void CreateWorld(IGenerator generator)
+    private float[,] GenerateWorldHeightmap(IGenerator generator, int seed)
     {
         int[,] worldArray = generator.Generate();
         worldArray = CreateTotalPathway(worldArray);
         //worldArray = CreateBlockages(worldArray);
         float[,] worldHeightMap = ConfigureHeightmap(worldArray);
-        worldHeightMap = ConfigureCaveFeatures(worldHeightMap);
+        worldHeightMap = ConfigureCaveFeatures(worldHeightMap, seed);
+
+        return worldHeightMap;
+    }
+
+    private void CreateWorld()
+    {
+        float[,] worldHeightMap = new float[worldData.MAP.Length, worldData.MAP[0].row.Length];
+        for (int i = 0; i < worldHeightMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < worldHeightMap.GetLength(1); j++)
+            {
+                worldHeightMap[i, j] = worldData.MAP[i].row[j];
+            }
+        }
 
         Dictionary<string, Transform> meshHeightCurChunkParents = new Dictionary<string, Transform>();
         Dictionary<string, int> meshHeightChildCount = new Dictionary<string, int>();
@@ -256,12 +271,12 @@ public class WorldGeneration : MonoBehaviour
 
         worldVolcanoes = new List<Volcano>();
 
-        for (int j = 0; j < worldArray.GetLength(1); j++)
+        for (int j = 0; j < worldHeightMap.GetLength(1); j++)
         {
-            for (int i = 0; i < worldArray.GetLength(0); i++)
+            for (int i = 0; i < worldHeightMap.GetLength(0); i++)
             {
                 float height = worldHeightMap[i, j];
-                if (height == 0) { continue; }
+                if (Mathf.Approximately(height, 0)) { continue; }
 
                 if (!meshHeightCurChunkParents.ContainsKey(height.ToString()))
                 {
@@ -285,88 +300,43 @@ public class WorldGeneration : MonoBehaviour
                     }
                 }
 
+                Vector2Int arrayPos = new Vector2Int(i, j);
+                Vector2 worldPos = offset + new Vector2Int(j, worldHeightMap.GetLength(0) - i);
+                GameObject objToSpawn;
+
                 if (height == (int)GenFeatures.Edge) //Edge Piece
                 {
+                    if (worldData.GetModel(arrayPos) == null) { continue; } // Dont use this model since it'll be default rock, but skip if destroyed!
+
                     GameObject prefab = GetRockEdgePiece(worldHeightMap, j, i);
                     if (prefab == null) { continue; }
 
-                    GameObject obj = Instantiate(prefab, transform);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                    obj.transform.parent = meshHeightCurChunkParents[height.ToString()];
-                    //obj.transform.localEulerAngles = new Vector3(0, 0, Random.Range(0, 360));
+                    objToSpawn = Instantiate(prefab, transform);
                 }
-                else if (height == (int)GenFeatures.Stalagmite) //Stalagmite (BOT)
+                else if (height == (int)GenFeatures.Stalagmite || height == (int)GenFeatures.Stalactite) // Stalagmite (BOT) and Stalactite (TOP)
                 {
-                    GameObject obj = Instantiate(models.stalagmiteBot.blockPrefab, stalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                    if (!SpawnBlock(arrayPos, out objToSpawn, stalParent)) { continue; } // Skip if destroyed
                 }
-                else if (height == (int)GenFeatures.Stalactite) //Stalactite (TOP)
+                else if (height == (int)GenFeatures.CrystalUp || height == (int)GenFeatures.CrystalDown || height == (int)GenFeatures.CrystalLeft ||
+                         height == (int)GenFeatures.CrystalRight || height == (int)GenFeatures.CrystalBack || height == (int)GenFeatures.CrystalRootUp ||
+                         height == (int)GenFeatures.CrystalRootDown || height == (int)GenFeatures.CrystalRootLeft || height == (int)GenFeatures.CrystalRootRight) // 5 Crystal Directions (+back) and 4 Crystal Roots
                 {
-                    GameObject obj = Instantiate(models.stalactiteTop.blockPrefab, stalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalUp) //Crystal (TOP)
-                {
-                    GameObject obj = Instantiate(models.crystalTop.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalDown) //Crystal (BOT)
-                {
-                    GameObject obj = Instantiate(models.crystalBot.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalLeft) //Crystal (LEFT)
-                {
-                    GameObject obj = Instantiate(models.crystalLeft.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRight) //Crystal (RIGHT)
-                {
-                    GameObject obj = Instantiate(models.crystalRight.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalBack) //Crystal (BACK)
-                {
-                    GameObject obj = Instantiate(models.crystalBack.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootUp) //Crystal Root (TOP)
-                {
-                    GameObject obj = Instantiate(models.crystalRootTop.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootDown) //Crystal Root (BOT)
-                {
-                    GameObject obj = Instantiate(models.crystalRootBot.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootLeft) //Crystal Root (LEFT)
-                {
-                    GameObject obj = Instantiate(models.crystalRootLeft.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                }
-                else if (height == (int)GenFeatures.CrystalRootRight) //Crystal Root (RIGHT)
-                {
-                    GameObject obj = Instantiate(models.crystalRootRight.blockPrefab, crystalParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
+                    if (!SpawnBlock(arrayPos, out objToSpawn, crystalParent)) { continue; } // Skip if destroyed
                 }
                 else if (height == (int)GenFeatures.Volcano) //Volcano
                 {
-                    GameObject obj = Instantiate(models.volcano.blockPrefab, volcanoParent);
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                    worldVolcanoes.Add(obj.GetComponent<Volcano>());
+                    if (!SpawnBlock(arrayPos, out objToSpawn, volcanoParent)) { continue; } // Skip if destroyed
 
-                    obj.GetComponent<Volcano>().Initialise(j, worldArray.GetLength(0) - i);
+                    worldVolcanoes.Add(objToSpawn.GetComponent<Volcano>());
+
+                    objToSpawn.GetComponent<Volcano>().Initialise(j, worldHeightMap.GetLength(0) - i);
                 }
                 else //Wall
                 {
-                    //GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    GameObject obj = Instantiate(models.rock.blockPrefab);
+                    if (!SpawnBlock(arrayPos, out objToSpawn)) { continue; } // Skip if destroyed
 
                     //obj.GetComponent<MeshFilter>().sharedMesh = BlockResources.i.GetDefaultRockMesh(); TODO 2
                     //GameObject obj = Instantiate(BlockResources.i.GetDefaultRockMesh());
-                    obj.transform.position = offset + new Vector2(j, worldArray.GetLength(0) - i);
-                    obj.transform.parent = meshHeightCurChunkParents[height.ToString()];
 
                     int meshCount = meshHeightChildCount[height.ToString()] + 1;
                     meshHeightChildCount[height.ToString()] = meshCount;
@@ -378,10 +348,33 @@ public class WorldGeneration : MonoBehaviour
                         meshHeightChildCount[height.ToString()] = 0;
                     }
                 }
+
+                objToSpawn.transform.position = worldPos;
+
+                // Must be done after position is set^
+                if (height == (int)GenFeatures.Edge || height > 0)
+                {
+                    objToSpawn.transform.parent = meshHeightCurChunkParents[height.ToString()];
+                }
             }
         }
 
         StartCoroutine(CombineAllMeshesNextFrame(meshHeightParentsAll));
+    }
+
+    private bool SpawnBlock(Vector2Int arrayPos, out GameObject obj, Transform parent = null)
+    {
+        GameObject model = worldData.GetModel(arrayPos);
+        if (model)
+        {
+            obj = Instantiate(model, parent);
+            return true;
+        }
+        else
+        {
+            obj = null;
+            return false;
+        }
     }
 
     IEnumerator CombineAllMeshesNextFrame(List<Transform> meshHeightParentsAll)
@@ -418,9 +411,9 @@ public class WorldGeneration : MonoBehaviour
     }
 
     // not in use
-    private int[,] CreateBlockages(int[,] worldArray)
+    private int[,] CreateBlockages(int[,] worldArray, int seed)
     {
-        Random.InitState(worldData.SEED + 4);
+        Random.InitState(seed + 4);
 
         int nextBlockageIndex = blocksBetweenBlockage + Random.Range(-blocksBetweenBlockageVariance, blocksBetweenBlockageVariance + 1);
         for (int j = 0; j < worldArray.GetLength(1) - 50; j++)
@@ -851,18 +844,18 @@ public class WorldGeneration : MonoBehaviour
         return heights;
     }
 
-    private float[,] ConfigureCaveFeatures(float[,] worldArray)
+    private float[,] ConfigureCaveFeatures(float[,] worldArray, int seed)
     {
-        worldArray = ConfigureStals(worldArray);
-        worldArray = ConfigureCrystals(worldArray);
+        worldArray = ConfigureStals(worldArray, seed);
+        worldArray = ConfigureCrystals(worldArray, seed);
         worldArray = ConfigureVolcanoes(worldArray);
 
         return worldArray;
     }
 
-    private float[,] ConfigureStals(float[,] worldArray) //CHANGE FOR NEW GENERATION! I.E MULTIPLE AIR POCKETS PER X
+    private float[,] ConfigureStals(float[,] worldArray, int seed) //CHANGE FOR NEW GENERATION! I.E MULTIPLE AIR POCKETS PER X
     {
-        Random.InitState(worldData.SEED + 1);
+        Random.InitState(seed + 1);
 
         for (int j = 1; j < worldArray.GetLength(1) - 1; j++)
         {
@@ -942,9 +935,9 @@ public class WorldGeneration : MonoBehaviour
         return worldArray;
     }
 
-    private float[,] ConfigureCrystals(float[,] worldArray)
+    private float[,] ConfigureCrystals(float[,] worldArray, int seed)
     {
-        Random.InitState(worldData.SEED + 2);
+        Random.InitState(seed + 2);
 
         int nextSingle = blocksBetweenSingles + Random.Range(-blocksBetweenSinglesVariance, blocksBetweenSinglesVariance + 1);
         int nextGroup = blocksBetweenGroups + Random.Range(-blocksBetweenGroupsVariance, blocksBetweenGroupsVariance + 1);
@@ -1080,9 +1073,9 @@ public class WorldGeneration : MonoBehaviour
     }
 
     //Assume up down left right in range of array
-    private bool PlaceCrystalCove(ref float[,] worldArray, int x, int y)
+    private bool PlaceCrystalCove(ref float[,] worldArray, int x, int y, int seed)
     {
-        Random.InitState(worldData.SEED + 3);
+        Random.InitState(seed + 3);
 
         int leftCount = 0;
         int rightCount = 0;
@@ -1218,33 +1211,53 @@ public class WorldGeneration : MonoBehaviour
         return true;
     }
 
-    public void DestroyTile(GameObject block)
+    public void DestroyTile(Transform block)
     {
         //Debug.Log("Destroyed: " + block.name + " " + block.transform.position);
         MeshCombiner chunk = block.GetComponentInParent<MeshCombiner>();
-        Destroy(block);
+        Destroy(block.gameObject);
 
         if (chunk != null) //Only recombine chunked objects (i.e rock edges are not chunked atm)
         {
             StartCoroutine(RecombineChunkNextFrame(chunk));
         }
     }
-    public void UpdateBlockMesh(Transform blockObj, Mesh newMesh)
+    public void UpdateBlockModel(Transform blockObj, GameObject newModel)
     {
-        Vector3 oldPos = blockObj.position;
-        Transform parent = blockObj.parent;
+        // Temporary? fix for non-full models (i.e model in child):
+        if (blockObj.GetComponent<MeshFilter>() == null)
+        {
+            return;
+        }
 
+        // Same Model:
+        if (blockObj.GetComponent<MeshFilter>().sharedMesh == newModel.GetComponent<MeshFilter>().sharedMesh)
+        {
+            return;
+        }
+
+        Transform parent = blockObj.parent;
         MeshCombiner chunk = parent.GetComponentInParent<MeshCombiner>();
 
-        //Update Mesh:
-        /*Destroy(blockObj.gameObject);
-        Instantiate(newMesh, oldPos, Quaternion.identity, parent);*/
-        blockObj.GetComponent<MeshFilter>().sharedMesh = newMesh;
+        // Update Mesh:
+        blockObj.GetComponent<MeshFilter>().sharedMesh = newModel.GetComponent<MeshFilter>().sharedMesh;
 
-        if (chunk != null) //Only recombine chunked objects (i.e rock edges are not chunked atm)
+        // Recombine Chunk:
+        if (chunk != null) // TODO: Only recombine chunked objects (i.e rock edges are not chunked atm)
         {
             StartCoroutine(RecombineChunkNextFrame(chunk));
         }
+    }
+    public void UpdateBlockHealth(Transform blockObj, Vector2Int worldPos, float change)
+    {
+        worldData.UpdateBlock(worldPos, change);
+        GameObject newModel = worldData.GetModel(worldData.WorldToArrayPos(worldPos));
+        if (!newModel)
+        {
+            DestroyTile(blockObj);
+            return;
+        }
+        UpdateBlockModel(blockObj, newModel);
     }
     IEnumerator RecombineChunkNextFrame(MeshCombiner chunk)
     {

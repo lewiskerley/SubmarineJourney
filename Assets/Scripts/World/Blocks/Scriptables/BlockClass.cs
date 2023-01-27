@@ -1,12 +1,31 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 [CreateAssetMenu(fileName = "NewBlock", menuName = "Blocks/Block")]
 public class BlockClass : ScriptableObject
 {
     public string blockName; // Unused as of now.
-    public GameObject blockPrefab;
+    public int maxHealth = 100;
+    public BlockModelThreshold[] models;
 
-    // TODO: List of prefabs and their health thresholds.
-    //  World.cs holds list of editted blocks (health, location, BlockClass from atlas)
+    public GameObject GetModel(float healthPercent)
+    {
+        if (healthPercent == 0) { return null; }
+
+        for (int i = 0; i < models.Length; i++)
+        {
+            if (healthPercent >= models[i].lowerBound)
+            {
+                return models[i].model;
+            }
+        }
+        return null;
+    }
+    public GameObject GetDefaultModel()
+    {
+        return GetModel(100);
+    }
+    //  World.cs holds list of editted blocks (location, BlockClass from atlas)
 }

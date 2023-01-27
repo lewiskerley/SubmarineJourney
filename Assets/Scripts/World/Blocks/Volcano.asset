@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: Volcano
   m_EditorClassIdentifier: 
   blockName: Volcano
-  blockPrefab: {fileID: 9098622679764767718, guid: b6b2e99c08419824c98266b45e07472d, type: 3}
+  models:
+  - lowerBound: 0
+    model: {fileID: 9098622679764767718, guid: b6b2e99c08419824c98266b45e07472d, type: 3}

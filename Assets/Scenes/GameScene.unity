@@ -92769,19 +92769,9 @@ MonoBehaviour:
   blocksBetweenGroupsVariance: 30
   groupEntryPathLength: 6
   crystalsInGroup: 9
-  crystalEdgeUp: {fileID: 1987732631748389266, guid: 8346b6f0e99b96c45a17c1e37ad456e5, type: 3}
-  crystalEdgeDown: {fileID: 6504435463459316383, guid: 3f36426541d364e4a9a0c040003321a6, type: 3}
-  crystalEdgeLeft: {fileID: 1047138638791008488, guid: 495506a22ffd29d4dabb0782e28c174d, type: 3}
-  crystalEdgeRight: {fileID: 3474183548827531494, guid: 1e7c1119447cc8e43a89cb63f9188505, type: 3}
-  crystalRootUp: {fileID: 5626440310905964248, guid: e875d433202e9444a80b83d8acf50875, type: 3}
-  crystalRootDown: {fileID: 7199096148445424917, guid: 0c83691ad05fa6740850ac221abff0e8, type: 3}
-  crystalRootLeft: {fileID: 2649667075826039423, guid: 0444c020ae45a844598f89844a557074, type: 3}
-  crystalRootRight: {fileID: 1587709330768379425, guid: b58cf9ce6d33b294696e870abfbe8192, type: 3}
-  crystalBack: {fileID: 4945862330019613816, guid: a0eef7240290e6f4c8a4553722f94d81, type: 3}
   crystalParent: {fileID: 512389995}
   volcanoTimeIdleToActive: 30
   volcanoTimeActivateToErruption: 10
-  volcano: {fileID: 9098622679764767718, guid: b6b2e99c08419824c98266b45e07472d, type: 3}
   volcanoParent: {fileID: 1498017067}
   blocksBetweenBlockage: 22
   blocksBetweenBlockageVariance: 7

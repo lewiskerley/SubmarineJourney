@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BlockAtlas
   m_EditorClassIdentifier: 
   rock: {fileID: 11400000, guid: f7cb42b4757569b4db7efad5b9d2aee6, type: 2}
+  rockEdge: {fileID: 11400000, guid: bb1efe3720d6b604cbca53db9fddb1d1, type: 2}
   stalagmiteBot: {fileID: 11400000, guid: 5f48014624a59e048af527a80b65d1aa, type: 2}
   stalactiteTop: {fileID: 11400000, guid: d85e931c2ebb9e74cb5cd84789d7f0b9, type: 2}
   crystalTop: {fileID: 11400000, guid: 9296d81796a662e4aaa5b661e00490d0, type: 2}

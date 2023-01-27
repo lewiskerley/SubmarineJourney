@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: StalactiteTop
   m_EditorClassIdentifier: 
   blockName: Stalactite
-  blockPrefab: {fileID: 4487154238759394955, guid: b8ddd802b6d3f674fb8d9a05d9c1a5a2, type: 3}
+  models:
+  - lowerBound: 0
+    model: {fileID: 4487154238759394955, guid: b8ddd802b6d3f674fb8d9a05d9c1a5a2, type: 3}
